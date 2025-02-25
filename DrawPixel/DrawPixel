@@ -1,0 +1,42 @@
+import pygame
+from OpenGL.GL import *
+from OpenGL.GLUT import *
+from OpenGL.GLU import *
+
+def init_opengl():
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluOrtho2D(0, 1, 0, 1)
+
+def draw_pixel(x, y):
+    glBegin(GL_POINTS)
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex2f(x, y)
+    glEnd()
+
+def main():
+    pygame.init()
+    
+    display = (1536, 864)
+    pygame.display.set_mode(display, pygame.DOUBLEBUF | pygame.OPENGL)
+    
+    init_opengl()
+    
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        
+        glClear(GL_COLOR_BUFFER_BIT)  # Limpa a tela
+        
+        draw_pixel(0.5, 0.5)
+        
+        pygame.display.flip()
+        pygame.time.wait(10)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
