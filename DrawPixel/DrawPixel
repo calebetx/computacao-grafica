@@ -3,14 +3,17 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 
+# Função que inicializa o open gl
 def init_opengl():
+    # Define a cor de fundo da tela, os tres primeiros argumentos é a cor em rgb e o ultimo é a opacidade
     glClearColor(0.0, 0.0, 0.0, 1.0)
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    gluOrtho2D(0, 1, 0, 1)
+    glMatrixMode(GL_PROJECTION) #Configura a matriz de projeção 
+    glLoadIdentity() # Reseta a matriz, para se caso haja alguma informação anterior
+    # Define como vai funcionar o plano carteziano, x e y estão variando de 0 a 1, é basicamente o primeiro quadrante 
+    gluOrtho2D(0, 1, 0, 1) 
 
 def draw_pixel(x, y):
-    glBegin(GL_POINTS)
+    glBegin(GL_POINTS) # Inicia um objeto ponto, ou seja, vai ser desenhado um pixel na tela
     glColor3f(1.0, 0.0, 0.0)
     glVertex2f(x, y)
     glEnd()
@@ -25,6 +28,7 @@ def main():
     
     running = True
     while running:
+        # Só pra parar quando fecha a tela, nada demais
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -32,10 +36,9 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT)  # Limpa a tela
         
         draw_pixel(0.5, 0.5)
-        
-        pygame.display.flip()
-        pygame.time.wait(10)
 
+        pygame.display.flip()  # Atualiza a tela
+        pygame.time.wait(10)  # Espera um pouco antes de continuar o loop
     pygame.quit()
 
 if __name__ == "__main__":
