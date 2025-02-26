@@ -1,0 +1,68 @@
+import glfw
+from OpenGL.GL import *
+from OpenGL.GLU import *
+
+pixels = []
+
+# Função para inicializar o OpenGL
+def init_opengl():
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluOrtho2D(0, 1, 0, 1)
+
+def draw_pixel(x, y):
+    glBegin(GL_POINTS)
+    glColor3f(1.0, 0.0, 0.0)
+    glVertex2f(x, y)
+    glEnd()
+
+def mouse_button_callback(window, button, action, mods):
+    if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
+        # Captura as coordenadas do ponteiro do mouse
+        x, y = glfw.get_cursor_pos(window)
+
+        # Teste para conferir se as coordenadas são capturadas corretamente
+        # print(f"Mouse clicado em: ({x}, {y})")
+
+        # Normaliza as coordenadas para o sistema de coordenadas de OpenGL (0 a 1)
+        width, height = glfw.get_framebuffer_size(window)
+        x = x / width
+        y = 1 - (y / height)
+
+        # Armazena o pixel na lista
+        pixels.append((x, y))
+
+def main():
+    if not glfw.init():
+        return
+
+    # Cria uma janela com OpenGL usando GLFW
+    window = glfw.create_window(1536, 864, "Janela OpenGL", None, None)
+    
+    if not window:
+        glfw.terminate()
+        return
+
+    # Define o contexto da janela atual
+    glfw.make_context_current(window)
+
+    # Define a função de callback para o evento do mouse
+    glfw.set_mouse_button_callback(window, mouse_button_callback)
+    
+    init_opengl()  # Inicializa o OpenGL
+    
+    while not glfw.window_should_close(window):
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        # Desenha os pixels armazenados
+        for pixel in pixels:
+            draw_pixel(pixel[0], pixel[1])
+
+        glfw.swap_buffers(window)  # Troca os buffers (para renderização de dupla fila)
+        glfw.poll_events()  # Processa eventos (como teclados e mouse)
+    
+    glfw.terminate()
+
+if __name__ == "__main__":
+    main()
