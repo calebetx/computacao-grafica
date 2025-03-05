@@ -43,6 +43,18 @@ def NDCtoDevice(ndcx, ndcy, width, height):
     dcy = round(ndcy * (height - 1))
     return dcx, dcy
 
+# Transformação do mundo para OpenGL (WD -> OpenGL)
+def worldToOpenGL(x, y, xmin, xmax, ymin, ymax):
+    opx = (2 * (x - xmin) / (xmax - xmin)) - 1
+    opy = (2 * (y - ymin) / (ymax - ymin)) - 1
+    return opx, opy
+
+# Transformação de OpenGL para coordenadas do dispositivo (OpenGL -> DC)
+def OpenGLtoDevice(opx, opy, width, height):
+    dcx = ((opx + 1) * (width - 1)) / 2
+    dcy = ((opy + 1) * (height - 1)) / 2
+    return dcx, dcy
+
 def main():
     window = initOpenGL()
 
@@ -52,14 +64,34 @@ def main():
     ymin = 15.2
     ymax = 100.4
 
+    # Perguntar ao usuário qual transformação ele deseja usar
+    print("Escolha a sequência de transformações:")
+    print("1. WD -> NDC -> DC")
+    print("2. WD -> OpenGL -> DC")
+    choice = input("Digite o número da opção desejada (1 ou 2): ")
+
     x = float(input("Digite a coordenada X do mundo: "))
     y = float(input("Digite a coordenada Y do mundo: "))
 
-    # Transformação do mundo para NDC
-    ndcx, ndcy = worldToNDC(x, y, xmin, xmax, ymin, ymax)
+    # Escolher a sequência de transformações com base na escolha do usuário
+    if choice == '1':
+        # Transformação do mundo para NDC
+        ndcx, ndcy = worldToNDC(x, y, xmin, xmax, ymin, ymax)
 
-    # Transformação de NDC para coordenadas do dispositivo
-    dcx, dcy = NDCtoDevice(ndcx, ndcy, width, height)
+        # Transformação de NDC para coordenadas do dispositivo
+        dcx, dcy = NDCtoDevice(ndcx, ndcy, width, height)
+
+    elif choice == '2':
+        # Transformação do mundo para OpenGL
+        opx, opy = worldToOpenGL(x, y, xmin, xmax, ymin, ymax)
+
+        # Transformação de OpenGL para coordenadas do dispositivo
+        dcx, dcy = OpenGLtoDevice(opx, opy, width, height)
+
+    else:
+        print("Opção inválida! Usando a transformação padrão (WD -> NDC -> DC).")
+        ndcx, ndcy = worldToNDC(x, y, xmin, xmax, ymin, ymax)
+        dcx, dcy = NDCtoDevice(ndcx, ndcy, width, height)
 
     while not glfw.window_should_close(window):
         glClear(GL_COLOR_BUFFER_BIT)
