@@ -25,7 +25,7 @@ def initOpenGL():
     return window
 
 def drawPixel(x, y):
-    glPointSize(1.0)
+    glPointSize(10.0)
     glBegin(GL_POINTS)
     glColor3f(1.0, 0.0, 0.0)
     glVertex2f(x, y)
@@ -73,19 +73,12 @@ def main():
     x = float(input("Digite a coordenada X do mundo: "))
     y = float(input("Digite a coordenada Y do mundo: "))
 
-    # Escolher a sequência de transformações com base na escolha do usuário
     if choice == '1':
-        # Transformação do mundo para NDC
         ndcx, ndcy = worldToNDC(x, y, xmin, xmax, ymin, ymax)
-
-        # Transformação de NDC para coordenadas do dispositivo
         dcx, dcy = NDCtoDevice(ndcx, ndcy, width, height)
 
     elif choice == '2':
-        # Transformação do mundo para OpenGL
         opx, opy = worldToOpenGL(x, y, xmin, xmax, ymin, ymax)
-
-        # Transformação de OpenGL para coordenadas do dispositivo
         dcx, dcy = OpenGLtoDevice(opx, opy, width, height)
 
     else:
