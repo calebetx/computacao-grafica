@@ -3,8 +3,12 @@ from OpenGL.GL import *
 import math
 
 # Resolução do dispositivo
-width = 1920
-height = 1080
+# width = 1920
+# height = 1080
+
+# Resolução do dispositivo com 125% de escala
+width = 1536
+height = 864
 
 def initOpenGL():
     if not glfw.init():
@@ -27,9 +31,10 @@ def initOpenGL():
 def drawPixel(x, y):
     glPointSize(10.0)
     glBegin(GL_POINTS)
-    glColor3f(1.0, 0.0, 0.0)
     glVertex2f(x, y)
     glEnd()
+
+# TRANSFORMAÇÕES PASSANDO PELO NDC
 
 # Mapear as coordenadas do mundo para as coordenadas normalizadas do dispositivo (WD -> NDC)
 def worldToNDC(x, y, xmin, xmax, ymin, ymax):
@@ -42,6 +47,8 @@ def NDCtoDevice(ndcx, ndcy, width, height):
     dcx = round(ndcx * (width - 1))
     dcy = round(ndcy * (height - 1))
     return dcx, dcy
+
+# TRANSFORMAÇÕES PASSANDO PELO OPENGL
 
 # Transformação do mundo para OpenGL (WD -> OpenGL)
 def worldToOpenGL(x, y, xmin, xmax, ymin, ymax):
@@ -56,13 +63,14 @@ def OpenGLtoDevice(opx, opy, width, height):
     return dcx, dcy
 
 def main():
-    window = initOpenGL()
-
     # Intervalo do mundo/usuário
-    xmin = 10.5
-    xmax = 100.3
-    ymin = 15.2
-    ymax = 100.4
+    xmin = float(input("Digite a coordenada XMIN do mundo: "))
+    xmax = float(input("Digite a coordenada XMAX do mundo: "))
+    ymin = float(input("Digite a coordenada YMIN do mundo: "))
+    ymax = float(input("Digite a coordenada YMAX do mundo: "))
+
+    x = float(input("Digite a coordenada X do mundo: "))
+    y = float(input("Digite a coordenada Y do mundo: "))
 
     # Perguntar ao usuário qual transformação ele deseja usar
     print("Escolha a sequência de transformações:")
@@ -70,8 +78,7 @@ def main():
     print("2. WD -> OpenGL -> DC")
     choice = input("Digite o número da opção desejada (1 ou 2): ")
 
-    x = float(input("Digite a coordenada X do mundo: "))
-    y = float(input("Digite a coordenada Y do mundo: "))
+    window = initOpenGL()
 
     if choice == '1':
         ndcx, ndcy = worldToNDC(x, y, xmin, xmax, ymin, ymax)
