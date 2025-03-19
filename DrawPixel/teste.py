@@ -15,9 +15,6 @@ def initOpenGL():
         print("Erro ao inicializar GLFW")
         exit()
 
-    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-
     window = glfw.create_window(width, height, "Sistemas de Coordenadas", None, None)
     if not window:
         print("Erro ao criar a janela GLFW")
