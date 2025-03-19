@@ -76,19 +76,14 @@ def main():
     # Inicializa o OpenGL e cria a janela
     window = initOpenGL()
 
-    # Desenha a circunferência
-    
-
     # Loop de renderização
     while not glfw.window_should_close(window):
-        glClear(GL_COLOR_BUFFER_BIT)  # Limpa o buffer de cor
+        glClear(GL_COLOR_BUFFER_BIT)
 
         cpontomedio(raio)
-        # ponto_circulo(0, raio)
-        # drawPixel(-50, -60)
 
-        glfw.swap_buffers(window)  # Troca os buffers (mostra o que foi desenhado)
-        glfw.poll_events()  # Processa os eventos
+        glfw.swap_buffers(window)
+        glfw.poll_events()
 
     glfw.terminate()
 
