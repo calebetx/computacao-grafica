@@ -1,0 +1,30 @@
+from pyopengltk import OpenGLFrame
+from OpenGL import GL
+from openGL.open_gl_manager import OpenGLManager
+
+class OpenGLScreen(OpenGLFrame):
+    def __init__(self, parent, width, height):
+        super().__init__(parent, width=int(width), height=int(height))
+        self.manager = OpenGLManager()
+        self.ready = False  
+
+    def initgl(self):
+        GL.glViewport(0, 0, self.width, self.height)
+        GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+        self.ready = True  
+
+    def redraw(self):
+        if not self.ready:
+            return
+        
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+        self.manager.draw()
+
+        self.update_idletasks()
+
+    def set_shape(self, shape_name):
+        self.manager.set_shape(shape_name)
+
+    def start_render_loop(self):
+        self.redraw()
+        self.after(33, self.start_render_loop) 
