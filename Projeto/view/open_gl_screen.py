@@ -1,22 +1,38 @@
 from pyopengltk import OpenGLFrame
 from OpenGL import GL
+from OpenGL.GLU import gluOrtho2D
 from openGL.open_gl_manager import OpenGLManager
 
 class OpenGLScreen(OpenGLFrame):
     def __init__(self, parent, width, height):
         super().__init__(parent, width=int(width), height=int(height))
         self.manager = OpenGLManager()
-        self.ready = False  
+        self.width = width
+        self.height = height
+        self.ready = False
+        self.world_configured = False 
 
     def initgl(self):
-        GL.glViewport(0, 0, self.width, self.height)
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
-        self.ready = True  
+        self.ready = True
+
+    def configure_world(self):
+        """Configura a viewport e projeção (uma única vez)."""
+        GL.glViewport(0, 0, self.width, self.height)
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        gluOrtho2D(-self.width // 2, self.width // 2, -self.height // 2, self.height // 2)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
 
     def redraw(self):
         if not self.ready:
             return
-        
+
+        if not self.world_configured:
+            self.configure_world()
+            self.world_configured = True
+
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         self.manager.draw()
 
@@ -27,4 +43,4 @@ class OpenGLScreen(OpenGLFrame):
 
     def start_render_loop(self):
         self.redraw()
-        self.after(33, self.start_render_loop) 
+        self.after(16, self.start_render_loop)

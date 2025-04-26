@@ -1,14 +1,8 @@
-from OpenGL import GL
-import math
+from openGL.functions.algorithms import draw_circle_midpoint
 
-def draw_circle(segments=50):
-    GL.glBegin(GL.GL_POLYGON)
-    GL.glColor3f(0.0, 0.0, 1.0) 
+def draw_circle():
+    center_x = 0
+    center_y = 0
+    radius = 100
 
-    for i in range(segments):
-        theta = 2.0 * math.pi * i / segments
-        x = 0.5 * math.cos(theta)
-        y = 0.5 * math.sin(theta)
-        GL.glVertex2f(x, y)
-
-    GL.glEnd()
+    draw_circle_midpoint(center_x, center_y, radius)
