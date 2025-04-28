@@ -25,6 +25,22 @@ class OpenGLScreen(OpenGLFrame):
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glLoadIdentity()
 
+    def draw_axes(self):
+        GL.glLineWidth(1)
+        GL.glBegin(GL.GL_LINES)
+
+        # Eixo X
+        GL.glColor3f(0.0, 0.0, 1.0)
+        GL.glVertex2f(-self.width // 2, 0.0)
+        GL.glVertex2f(self.width // 2, 0.0)
+
+        # Eixo Y
+        GL.glColor3f(0.0, 0.0, 1.0)
+        GL.glVertex2f(0.0, -self.height // 2)
+        GL.glVertex2f(0.0, self.height // 2)
+
+        GL.glEnd()
+
     def redraw(self):
         if not self.ready:
             return
@@ -35,6 +51,7 @@ class OpenGLScreen(OpenGLFrame):
 
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
         self.manager.draw()
+        self.draw_axes()
 
         self.update_idletasks()
 
