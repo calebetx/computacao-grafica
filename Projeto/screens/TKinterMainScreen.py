@@ -45,7 +45,7 @@ class TKinterMainScreen:
 
         self.option_menu = tk.OptionMenu(self.menuTopBar, self.selected_option, *options)
         self.option_menu.place(x = width * 0.01)
-        self.option_menu.config(bg=menuTopBarColor, fg = "lightgray")
+        self.option_menu.config(bg=menuTopBarColor, fg = "lightgray", highlightthickness=0, relief="flat")
 
     def run(self):
         """Inicia o loop principal do Tkinter"""
