@@ -23,7 +23,7 @@ def definir_camera():
     gluLookAt(5, 5, 5, 0, 0, 0, 0, 1, 0)
 
 def main():
-    janela = inicializar_janela(800, 600, "Cubo na Origem")
+    janela = inicializar_janela(1600, 900, "Cubo na Origem")
 
     glEnable(GL_DEPTH_TEST)
 
