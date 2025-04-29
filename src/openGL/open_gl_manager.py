@@ -22,36 +22,94 @@ class OpenGLManager:
 
     def menu(self):
         while self.running:
-            print("\nEscolha o tipo de reflexão:")
-            print("1 - Reflexão em relação ao eixo X")
-            print("2 - Reflexão em relação ao eixo Y")
-            print("3 - Reflexão em relação à Origem")
-            print("4 - Reflexão na linha Y = X")
-            print("0 - Sem reflexão (normal)")
+            print("\n=== Menu Principal ===")
+            print("1 - Reflexão")
+            print("2 - Translação")
+            print("3 - Rotação")
+            print("4 - Escala")
+            print("5 - Cisalhamento")
+            print("0 - Resetar para Original")
             print("q - Sair")
 
-            escolha = input("Digite sua opção: ").strip()
+            escolha = input("Digite o tipo de transformação: ").strip()
 
             if escolha == '1':
-                self.square_points = reflexao2d(self.square_points, 'x')
+                self.menu_reflexao()
             elif escolha == '2':
-                self.square_points = reflexao2d(self.square_points, 'y')
+                self.menu_translacao()
             elif escolha == '3':
-                self.square_points = reflexao2d(self.square_points, 'origem')
+                self.menu_rotacao()
             elif escolha == '4':
-                self.square_points = reflexao2d(self.square_points, 'xy')
+                self.menu_escala()
+            elif escolha == '5':
+                self.menu_cisalhamento()
             elif escolha == '0':
                 self.square_points = np.array([
                     [0, 0],
                     [0, 150],
                     [150, 150],
                     [150, 0]
-                ]) 
+                ])
             elif escolha.lower() == 'q':
                 self.running = False
                 break
             else:
-                print("Opção inválida. Nenhuma transformação aplicada.")                        
+                print("Opção inválida. Tente novamente.")
+
+    def menu_reflexao(self):
+        print("\n--- Reflexão ---")
+        print("1 - Eixo X")
+        print("2 - Eixo Y")
+        print("3 - Origem")
+        print("4 - Reta Y = X")
+
+        escolha = input("Digite a reflexão desejada: ").strip()
+
+        if escolha == '1':
+            self.square_points = reflexao2d(self.square_points, 'x')
+        elif escolha == '2':
+            self.square_points = reflexao2d(self.square_points, 'y')
+        elif escolha == '3':
+            self.square_points = reflexao2d(self.square_points, 'origem')
+        elif escolha == '4':
+            self.square_points = reflexao2d(self.square_points, 'xy')
+        else:
+            print("Opção inválida para reflexão.")
+
+    def menu_translacao(self):
+        print("\n--- Translação ---")
+        try:
+            dx = float(input("Digite o valor de deslocamento em X: "))
+            dy = float(input("Digite o valor de deslocamento em Y: "))
+            self.square_points = translacao2d(self.square_points, dx, dy)
+        except ValueError:
+            print("Entrada inválida. Digite números.")
+
+    def menu_rotacao(self):
+        print("\n--- Rotação ---")
+        try:
+            angulo = float(input("Digite o ângulo de rotação (em graus): "))
+            self.square_points = rotacao2d(self.square_points, angulo)
+        except ValueError:
+            print("Entrada inválida. Digite um número.")
+
+    def menu_escala(self):
+        print("\n--- Escala ---")
+        try:
+            sx = float(input("Digite o fator de escala em X: "))
+            sy = float(input("Digite o fator de escala em Y: "))
+            self.square_points = escala2d(self.square_points, sx, sy)
+        except ValueError:
+            print("Entrada inválida. Digite números.")
+
+    def menu_cisalhamento(self):
+        print("\n--- Cisalhamento ---")
+        try:
+            shx = float(input("Digite o valor de cisalhamento em X: "))
+            shy = float(input("Digite o valor de cisalhamento em Y: "))
+            self.square_points = cisalhamento2d(self.square_points, shx, shy)
+        except ValueError:
+            print("Entrada inválida. Digite números.")                        
 
     def start_menu_thread(self):
         menu_thread = threading.Thread(target=self.menu)
