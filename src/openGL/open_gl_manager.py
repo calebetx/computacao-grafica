@@ -1,3 +1,4 @@
+import os
 import threading
 
 import numpy as np
@@ -52,7 +53,7 @@ class OpenGLManager:
                 ])
             elif escolha.lower() == 'q':
                 self.running = False
-                break
+                os._exit(0)
             else:
                 print("Opção inválida. Tente novamente.")
 
