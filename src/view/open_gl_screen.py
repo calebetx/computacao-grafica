@@ -7,6 +7,7 @@ class OpenGLScreen(OpenGLFrame):
     def __init__(self, parent, width, height):
         super().__init__(parent, width=int(width), height=int(height))
         self.manager = OpenGLManager()
+        self.manager.start_menu_thread()
         self.width = width
         self.height = height
         self.ready = False

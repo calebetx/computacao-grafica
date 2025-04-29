@@ -1,6 +1,6 @@
 import numpy as np
 
-def reflexao2d(pontos, tipo='y'):
+def reflexao2d(pontos, tipo):
     """
     Reflete um array de pontos 2D em relação a um eixo ou linha.
 
