@@ -21,31 +21,3 @@ def draw_line(x0, y0, x1, y1, color=(1.0, 1.0, 1.0)):
         if e2 < dx:
             err += dx
             y0 += sy
-
-def draw_circle_midpoint(center_x, center_y, radius, color=(1.0, 1.0, 1.0)):
-    """Algoritmo de ponto médio para desenhar circunferência."""
-    x = 0
-    y = radius
-    d = 1 - radius
-
-    plot_circle_points(center_x, center_y, x, y, color)
-
-    while y > x:
-        if d < 0:
-            d += 2 * x + 3
-        else:
-            d += 2 * (x - y) + 5
-            y -= 1
-        x += 1
-        plot_circle_points(center_x, center_y, x, y, color)
-
-def plot_circle_points(cx, cy, x, y, color):
-    """Plota os 8 pontos de simetria."""
-    draw_pixel(cx + x, cy + y, color)
-    draw_pixel(cx - x, cy + y, color)
-    draw_pixel(cx + x, cy - y, color)
-    draw_pixel(cx - x, cy - y, color)
-    draw_pixel(cx + y, cy + x, color)
-    draw_pixel(cx - y, cy + x, color)
-    draw_pixel(cx + y, cy - x, color)
-    draw_pixel(cx - y, cy - x, color)

@@ -3,10 +3,10 @@ from openGL.functions.algorithms import draw_line
 def draw_square():
     size = 150
 
-    x0, y0 = -size, -size
-    x1, y1 = size, -size
+    x0, y0 = 0, 0
+    x1, y1 = 0, size
     x2, y2 = size, size
-    x3, y3 = -size, size
+    x3, y3 = size, 0
 
     draw_line(x0, y0, x1, y1)  # Base inferior
     draw_line(x1, y1, x2, y2)  # Lado direito

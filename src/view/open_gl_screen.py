@@ -50,8 +50,8 @@ class OpenGLScreen(OpenGLFrame):
             self.world_configured = True
 
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        self.manager.draw()
         self.draw_axes()
+        self.manager.draw()
 
         self.update_idletasks()
 
