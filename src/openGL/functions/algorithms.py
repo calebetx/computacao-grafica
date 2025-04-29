@@ -1,6 +1,10 @@
 from .primitives import draw_pixel
 
 def draw_line(x0, y0, x1, y1, color=(1.0, 1.0, 1.0)):
+    x0 = int(round(x0))
+    y0 = int(round(y0))
+    x1 = int(round(x1))
+    y1 = int(round(y1))
     """Algoritmo de Bresenham para desenhar linha."""
     dx = abs(x1 - x0)
     dy = abs(y1 - y0)

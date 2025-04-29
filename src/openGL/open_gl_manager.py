@@ -19,7 +19,7 @@ class OpenGLManager:
             [0, 150],
             [150, 150],
             [150, 0]
-        ])
+        ], dtype=float)
 
     def menu(self):
         while self.running:
@@ -118,4 +118,5 @@ class OpenGLManager:
         menu_thread.start()
 
     def draw(self):
-        draw_square(self.square_points)
+        if self.square_points is not None:
+            draw_square(self.square_points)

@@ -1,32 +1,28 @@
 import numpy as np
 
 def rotacao2d(pontos, angulo_graus):
-    """
-    Aplica rotação 2D a um array de pontos.
-
-    Parâmetros:
-    - pontos: lista ou np.array de forma (N, 2), com pontos [x, y]
-    - angulo_graus: ângulo de rotação no sentido anti-horário (em graus)
-
-    Retorna:
-    - np.array com os pontos rotacionados
-    """
     pontos = np.array(pontos)
 
-    # Converte para radianos
+    # Calcula o centro
+    centro = pontos.mean(axis=0)
+
+    # Converte ângulo para radianos
     theta = np.radians(angulo_graus)
 
-    # Coordenadas homogêneas
-    pontos_h = np.hstack([pontos, np.ones((pontos.shape[0], 1))])
-
-    # Matriz de rotação em torno da origem
+    # Matriz de rotação 2x2
     matriz_rotacao = np.array([
-        [np.cos(theta), -np.sin(theta), 0],
-        [np.sin(theta),  np.cos(theta), 0],
-        [0, 0, 1]
+        [np.cos(theta), -np.sin(theta)],
+        [np.sin(theta),  np.cos(theta)]
     ])
 
-    # Aplica rotação
-    pontos_rotacionados = pontos_h @ matriz_rotacao.T
+    # Translada para a origem
+    pontos_transladados = pontos - centro
 
-    return pontos_rotacionados[:, :2]
+    # Aplica a rotação
+    pontos_rotacionados = pontos_transladados @ matriz_rotacao.T
+
+    # Volta para a posição original
+    pontos_final = pontos_rotacionados + centro
+
+    # print(pontos_final)
+    return pontos_final
