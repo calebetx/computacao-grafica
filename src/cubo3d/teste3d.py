@@ -2,7 +2,7 @@ import glfw
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-from drawCube import desenhar_eixos, desenhar_cubo
+from drawCube import desenhar_eixos, desenhar_cubo, gerar_cubo_na_origem
 
 def inicializar_janela(largura, altura, titulo):
     if not glfw.init():
@@ -33,7 +33,9 @@ def main():
         definir_camera()
 
         desenhar_eixos()
-        desenhar_cubo()
+
+        lado = 2
+        desenhar_cubo(gerar_cubo_na_origem(lado), lado)
 
         glfw.swap_buffers(janela)
 
