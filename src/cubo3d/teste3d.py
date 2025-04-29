@@ -4,6 +4,7 @@ from OpenGL.GLU import *
 
 from drawCube import desenhar_eixos, desenhar_cubo, gerar_cubo_na_origem
 from algorithms3d.escala3d import escala3d
+from algorithms3d.reflexao3d import reflexao3d
 
 def inicializar_janela(largura, altura, titulo):
     if not glfw.init():
@@ -39,7 +40,8 @@ def main():
         vertices = gerar_cubo_na_origem(lado)
         fatores_escala = (1.0, 1.0, 0.5)
 
-        vertices = escala3d(vertices, fatores_escala)
+        # vertices = escala3d(vertices, fatores_escala)
+        # vertices = reflexao3d(vertices, 'yz')
 
         desenhar_cubo(vertices)
 
