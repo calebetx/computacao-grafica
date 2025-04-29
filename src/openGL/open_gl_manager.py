@@ -3,6 +3,12 @@ import threading
 import numpy as np
 from openGL.draw_square import draw_square
 from openGL.functions.algorithms2d.reflexao2d import reflexao2d
+from openGL.functions.algorithms2d.escala2d import escala2d
+from openGL.functions.algorithms2d.rotacao2d import rotacao2d
+from openGL.functions.algorithms2d.translacao2d import translacao2d
+from openGL.functions.algorithms2d.cisalhamento2d import cisalhamento2d
+
+import time
 
 class OpenGLManager:
     def __init__(self):
