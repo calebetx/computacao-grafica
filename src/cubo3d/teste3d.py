@@ -2,6 +2,7 @@ import glfw
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+from algorithms3d.translacao3d import translacao3d
 from drawCube import desenhar_eixos, desenhar_cubo, gerar_cubo_na_origem
 from algorithms3d.escala3d import escala3d
 from algorithms3d.reflexao3d import reflexao3d
@@ -40,6 +41,8 @@ def main():
         vertices = gerar_cubo_na_origem(lado)
         fatores_escala = (1.0, 1.0, 0.5)
 
+        # vertices = escala3d(vertices, fatores_escala)
+        vertices = translacao3d(vertices, fatores_escala)
         # vertices = escala3d(vertices, fatores_escala)
         # vertices = reflexao3d(vertices, 'yz')
 
