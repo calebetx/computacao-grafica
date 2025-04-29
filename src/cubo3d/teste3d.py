@@ -3,6 +3,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 from drawCube import desenhar_eixos, desenhar_cubo, gerar_cubo_na_origem
+from algorithms3d.escala3d import escala3d
 
 def inicializar_janela(largura, altura, titulo):
     if not glfw.init():
@@ -35,7 +36,12 @@ def main():
         desenhar_eixos()
 
         lado = 2
-        desenhar_cubo(gerar_cubo_na_origem(lado), lado)
+        vertices = gerar_cubo_na_origem(lado)
+        fatores_escala = (1.0, 1.0, 0.5)
+
+        vertices = escala3d(vertices, fatores_escala)
+
+        desenhar_cubo(vertices)
 
         glfw.swap_buffers(janela)
 

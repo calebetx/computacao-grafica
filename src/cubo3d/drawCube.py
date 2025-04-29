@@ -35,20 +35,19 @@ def desenhar_eixos():
     glEnd()
     glLineWidth(1.0)
 
-def desenhar_cubo(vertices, lado):
+def desenhar_cubo(vertices):
     # Desenhar vértices
     for x, y, z in vertices:
         draw_pixel(x, y, z, color=(1.0, 1.0, 1.0))
+    
+    arestas = [
+        (0, 1), (1, 2), (2, 3), (3, 0),  # base inferior
+        (4, 5), (5, 6), (6, 7), (7, 4),  # base superior
+        (0, 4), (1, 5), (2, 6), (3, 7)   # colunas verticais
+    ]
 
-    # Conectar vértices que estão a uma distância igual ao lado do cubo
-    for i in range(len(vertices)):
-        for j in range(i + 1, len(vertices)):
-            x0, y0, z0 = vertices[i]
-            x1, y1, z1 = vertices[j]
-
-            # Distância Euclidiana
-            distancia = math.sqrt((x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2)
-
-            # Se a distância for igual ao lado do cubo, conectar
-            if math.isclose(distancia, lado, abs_tol=1e-6):
-                draw_line_3d(x0, y0, z0, x1, y1, z1, color=(1.0, 1.0, 1.0))
+    # Desenhar as arestas
+    for i, j in arestas:
+        x0, y0, z0 = vertices[i]
+        x1, y1, z1 = vertices[j]
+        draw_line_3d(x0, y0, z0, x1, y1, z1, color=(1.0, 1.0, 1.0))
