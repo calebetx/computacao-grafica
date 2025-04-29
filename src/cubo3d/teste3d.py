@@ -5,6 +5,7 @@ import numpy as np
 
 from algorithms3d.translacao3d import translacao3d
 from algorithms3d.cisalhamento3d import cisalhamento3d
+from algorithms3d.rotacao3d import rotacao3d
 from drawCube import desenhar_eixos, desenhar_cubo, gerar_cubo_na_origem
 from algorithms3d.escala3d import escala3d
 from algorithms3d.reflexao3d import reflexao3d
@@ -44,12 +45,11 @@ def main():
         fatores_escala = (1.0, 1.0, 0.5)
 
         # vertices = escala3d(vertices, fatores_escala)
-
         # vertices = translacao3d(vertices, fatores_escala)
         # vertices = escala3d(vertices, fatores_escala)
         # vertices = reflexao3d(vertices, 'yz')
-
-        vertices = cisalhamento3d(vertices, sh_xy=0.5, sh_xz=0.2, sh_yz=0.3)
+        # vertices = cisalhamento3d(vertices, sh_xy=0.5, sh_xz=0.2, sh_yz=0.3)
+        vertices = rotacao3d(vertices, 0, eixo='x')
 
         desenhar_cubo(vertices)
 
