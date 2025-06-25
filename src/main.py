@@ -3,8 +3,11 @@ from view.content import Content
 import tkinter as tk
 
 if __name__ == "__main__":
-    width = 1920
-    height = 1080
+    width = 1100
+    height = 700
+    
+    # width = 1920
+    # height = 1080
 
     app = MainWindow(width, height)
 
