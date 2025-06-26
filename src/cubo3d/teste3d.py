@@ -229,7 +229,7 @@ class CanvasImagem(OpenGLFrame):
         super().__init__(master, **kwargs)
         self.pontos = []; self.pontos_originais = []
     def initgl(self):
-        glClearColor(1.0, 1.0, 1.0, 1.0); glMatrixMode(GL_PROJECTION); glLoadIdentity()
+        glClearColor(0.1, 0.1, 0.1, 1.0); glMatrixMode(GL_PROJECTION); glLoadIdentity()
         gluOrtho2D(-400, 400, -300, 300); glMatrixMode(GL_MODELVIEW)
     def redraw(self):
         glClear(GL_COLOR_BUFFER_BIT); glLoadIdentity()
@@ -283,10 +283,62 @@ class CanvasImagem(OpenGLFrame):
         glEnd()
     def desenhar_pontos(self):
         if not self.pontos: return
-        glColor3f(0.0, 0.0, 0.0); glPointSize(1.0); glBegin(GL_POINTS)
+        glColor3f(1.0, 1.0, 1.0); glPointSize(1.0); glBegin(GL_POINTS)
         for x, y in self.pontos: glVertex2f(x, y)
         glEnd()
     def resetar(self): self.pontos = [p[:] for p in self.pontos_originais]; self.tkExpose(None)
+
+# --- NOVA CLASSE PARA O ECG ---
+class CanvasECG(OpenGLFrame):
+    def __init__(self, master=None, **kwargs):
+        super().__init__(master, **kwargs)
+        self.ecg_buffer = []
+        self.t = 0
+    def initgl(self):
+        glClearColor(0.0, 0.05, 0.0, 1.0) # Fundo verde escuro
+        self.ecg_buffer = []
+        self.t = 0
+    @staticmethod
+    def heartbeat_wave(t):
+        # Gera uma forma de onda de ECG plausível
+        t = t % 5.0 # Ciclo de 5 segundos
+        # P wave
+        p = 0.2 * math.exp(-40 * (t - 0.8)**2)
+        # QRS complex
+        q = -0.4 * math.exp(-200 * (t - 1.0)**2)
+        r = 1.0 * math.exp(-250 * (t - 1.1)**2)
+        s = -0.5 * math.exp(-300 * (t - 1.2)**2)
+        # T wave
+        t_wave = 0.5 * math.exp(-30 * (t - 1.7)**2)
+        return (p + q + r + s + t_wave) * 0.7
+    def update(self):
+        self.t += 0.02
+        y = self.heartbeat_wave(self.t)
+        self.ecg_buffer.append(y)
+        if len(self.ecg_buffer) > 500: # Mantém o buffer com 500 pontos
+            self.ecg_buffer.pop(0)
+    def redraw(self):
+        glClear(GL_COLOR_BUFFER_BIT)
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        gluOrtho2D(-1, 1, -0.8, 1.2) # Ajusta a visão vertical para a onda
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        # Desenha a linha do ECG
+        glColor3f(0.0, 1.0, 0.2) # Verde claro
+        glLineWidth(2)
+        glBegin(GL_LINE_STRIP)
+        for i, y in enumerate(self.ecg_buffer):
+            x = (i / 500.0) * 2.0 - 1.0 # Normaliza X de -1 a 1
+            glVertex2f(x, y)
+        glEnd()
+        glFlush()
+    def animation_loop(self):
+        self.update()
+        self.tkExpose(None) # Pede para redesenhar
+        self.after(16, self.animation_loop) # Aproximadamente 60 FPS
+    def start_animation(self):
+        self.after(100, self.animation_loop) # Inicia o loop após a janela estar pronta
 
 class App(tk.Tk):
     def __init__(self):
@@ -296,21 +348,28 @@ class App(tk.Tk):
         
         frame_3d = ttk.Frame(self.notebook); frame_2d = ttk.Frame(self.notebook)
         frame_retas = ttk.Frame(self.notebook); frame_imagem = ttk.Frame(self.notebook)
+        frame_ecg = ttk.Frame(self.notebook) # NOVO FRAME
         
         self.notebook.add(frame_3d, text='Transformações 3D'); self.notebook.add(frame_2d, text='Transformações 2D')
         self.notebook.add(frame_retas, text='Desenho de Retas'); self.notebook.add(frame_imagem, text='Imagem')
+        self.notebook.add(frame_ecg, text='ECG') # NOVA ABA
         
         self.canvas_3d = Canvas3D(frame_3d); self.canvas_3d.pack(fill=tk.BOTH, expand=True)
         self.canvas_2d = Canvas2D(frame_2d); self.canvas_2d.pack(fill=tk.BOTH, expand=True)
         self.canvas_retas = CanvasRetas(frame_retas); self.canvas_retas.pack(fill=tk.BOTH, expand=True)
         self.canvas_imagem = CanvasImagem(frame_imagem); self.canvas_imagem.pack(fill=tk.BOTH, expand=True)
+        self.canvas_ecg = CanvasECG(frame_ecg); self.canvas_ecg.pack(fill=tk.BOTH, expand=True) # NOVO CANVAS
         
         self.controles_3d = ttk.Frame(self.painel_esquerdo); self.controles_2d = ttk.Frame(self.painel_esquerdo)
         self.controles_retas = ttk.Frame(self.painel_esquerdo); self.controles_imagem = ttk.Frame(self.painel_esquerdo)
+        self.controles_ecg = ttk.Frame(self.painel_esquerdo) # NOVOS CONTROLES (FRAME)
         
-        self.criar_controles_3d(); self.criar_controles_2d(); self.criar_controles_retas(); self.criar_controles_imagem()
+        self.criar_controles_3d(); self.criar_controles_2d(); self.criar_controles_retas()
+        self.criar_controles_imagem(); self.criar_controles_ecg()
+        
         self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
         self.after(100, lambda: self.on_tab_changed(None))
+        self.canvas_ecg.start_animation() # Inicia a animação do ECG
 
     def on_tab_changed(self, event):
         for w in self.painel_esquerdo.winfo_children(): w.pack_forget()
@@ -319,6 +378,7 @@ class App(tk.Tk):
         elif tab_selecionada == 'Transformações 2D': self.controles_2d.pack(fill=tk.X); self.canvas_2d.tkExpose(None)
         elif tab_selecionada == 'Desenho de Retas': self.controles_retas.pack(fill=tk.X); self.canvas_retas.tkExpose(None)
         elif tab_selecionada == 'Imagem': self.controles_imagem.pack(fill=tk.X); self.canvas_imagem.tkExpose(None)
+        elif tab_selecionada == 'ECG': self.controles_ecg.pack(fill=tk.X); self.canvas_ecg.tkExpose(None)
 
     def criar_controles_imagem(self):
         self.entries_imagem = {}; frame = self.controles_imagem
@@ -368,6 +428,11 @@ class App(tk.Tk):
         shx = self._get_float_img('shx'); shy = self._get_float_img('shy'); self.canvas_imagem.aplicar_cisalhamento(shx, shy); self._add_hist(f"Cisalhamento: shx={shx}, shy={shy}")
     def aplicar_reflexao_imagem(self):
         eixo = self.entries_imagem['reflexao_eixo'].get(); self.canvas_imagem.aplicar_reflexao(eixo); self._add_hist(f"Reflexão: eixo {eixo}")
+
+    def criar_controles_ecg(self):
+        frame = self.controles_ecg
+        ttk.Label(frame, text="Animação de Eletrocardiograma", padding=10, font=("", 10, "bold")).pack()
+        ttk.Label(frame, text="Esta aba demonstra uma animação\ncontínua usando um loop interno.", padding=(10,0,10,10), justify=tk.CENTER).pack()
 
     def criar_controles_retas(self):
         self.entries_retas = {}; frame = self.controles_retas
