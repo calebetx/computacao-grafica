@@ -14,7 +14,6 @@ def escala3d(vertices, s):
     centro = vertices.mean(axis=0)
     return (vertices - centro) * np.array(s) + centro
 def rotacao3d(vertices, angulo, eixo): 
-    # Implementação simplificada para o exemplo funcionar
     rad = np.radians(angulo)
     c, s = np.cos(rad), np.sin(rad)
     if eixo == 'x':
@@ -230,7 +229,7 @@ class CanvasImagem(OpenGLFrame):
         super().__init__(master, **kwargs)
         self.pontos = []; self.pontos_originais = []
     def initgl(self):
-        glClearColor(0.1, 0.1, 0.1, 1.0); glMatrixMode(GL_PROJECTION); glLoadIdentity()
+        glClearColor(1.0, 1.0, 1.0, 1.0); glMatrixMode(GL_PROJECTION); glLoadIdentity()
         gluOrtho2D(-400, 400, -300, 300); glMatrixMode(GL_MODELVIEW)
     def redraw(self):
         glClear(GL_COLOR_BUFFER_BIT); glLoadIdentity()
@@ -239,9 +238,12 @@ class CanvasImagem(OpenGLFrame):
         caminho = filedialog.askopenfilename(filetypes=[("Imagens", "*.png *.jpg *.bmp")])
         if not caminho: return False
         try:
-            imagem = Image.open(caminho).convert("1"); matriz = np.array(imagem)
-            h, w = matriz.shape; escala = 0.5 # AJUSTE PARA IMAGEM MENOR
+            imagem = Image.open(caminho).convert("1", dither=Image.Dither.NONE)
+            matriz = np.array(imagem)
+            h, w = matriz.shape; escala = 0.5 
             self.pontos = [[(x - w / 2) * escala, (h / 2 - y) * escala] for y in range(h) for x in range(w) if matriz[y, x] == 0]
+            if not self.pontos:
+                messagebox.showwarning("Aviso", "Nenhum ponto preto foi encontrado na imagem. A imagem pode ser toda branca.")
             self.pontos_originais = [p[:] for p in self.pontos]
             self.tkExpose(None); return True
         except Exception as e:
@@ -281,7 +283,7 @@ class CanvasImagem(OpenGLFrame):
         glEnd()
     def desenhar_pontos(self):
         if not self.pontos: return
-        glColor3f(0.0, 1.0, 1.0); glPointSize(1.0); glBegin(GL_POINTS) # Tamanho do ponto ajustado
+        glColor3f(0.0, 0.0, 0.0); glPointSize(1.0); glBegin(GL_POINTS)
         for x, y in self.pontos: glVertex2f(x, y)
         glEnd()
     def resetar(self): self.pontos = [p[:] for p in self.pontos_originais]; self.tkExpose(None)
@@ -294,6 +296,7 @@ class App(tk.Tk):
         
         frame_3d = ttk.Frame(self.notebook); frame_2d = ttk.Frame(self.notebook)
         frame_retas = ttk.Frame(self.notebook); frame_imagem = ttk.Frame(self.notebook)
+        
         self.notebook.add(frame_3d, text='Transformações 3D'); self.notebook.add(frame_2d, text='Transformações 2D')
         self.notebook.add(frame_retas, text='Desenho de Retas'); self.notebook.add(frame_imagem, text='Imagem')
         
@@ -318,8 +321,7 @@ class App(tk.Tk):
         elif tab_selecionada == 'Imagem': self.controles_imagem.pack(fill=tk.X); self.canvas_imagem.tkExpose(None)
 
     def criar_controles_imagem(self):
-        self.entries_imagem = {}
-        frame = self.controles_imagem
+        self.entries_imagem = {}; frame = self.controles_imagem
         ttk.Button(frame, text="Carregar Imagem", command=self.carregar_imagem_ui).pack(pady=10, fill=tk.X)
         ttk.Button(frame, text="Resetar Imagem", command=self.resetar_imagem_ui).pack(pady=(0,10), fill=tk.X)
         def _criar_controles_linha(parent, text, key1, val1, key2, val2, cmd):
@@ -357,32 +359,25 @@ class App(tk.Tk):
         try: return float(self.entries_imagem[key].get())
         except (ValueError, KeyError): messagebox.showerror("Erro", f"Valor inválido para {key}"); return default
     def aplicar_translacao_imagem(self):
-        dx = self._get_float_img('tx'); dy = self._get_float_img('ty')
-        self.canvas_imagem.aplicar_translacao(dx, dy); self._add_hist(f"Translação: dx={dx}, dy={dy}")
+        dx = self._get_float_img('tx'); dy = self._get_float_img('ty'); self.canvas_imagem.aplicar_translacao(dx, dy); self._add_hist(f"Translação: dx={dx}, dy={dy}")
     def aplicar_escala_imagem(self):
-        sx = self._get_float_img('sx', 1.0); sy = self._get_float_img('sy', 1.0)
-        self.canvas_imagem.aplicar_escala(sx, sy); self._add_hist(f"Escala: sx={sx}, sy={sy}")
+        sx = self._get_float_img('sx', 1.0); sy = self._get_float_img('sy', 1.0); self.canvas_imagem.aplicar_escala(sx, sy); self._add_hist(f"Escala: sx={sx}, sy={sy}")
     def aplicar_rotacao_imagem(self):
         angulo = self._get_float_img('angulo'); self.canvas_imagem.aplicar_rotacao(angulo); self._add_hist(f"Rotação: {angulo}°")
     def aplicar_cisalhamento_imagem(self):
-        shx = self._get_float_img('shx'); shy = self._get_float_img('shy')
-        self.canvas_imagem.aplicar_cisalhamento(shx, shy); self._add_hist(f"Cisalhamento: shx={shx}, shy={shy}")
+        shx = self._get_float_img('shx'); shy = self._get_float_img('shy'); self.canvas_imagem.aplicar_cisalhamento(shx, shy); self._add_hist(f"Cisalhamento: shx={shx}, shy={shy}")
     def aplicar_reflexao_imagem(self):
-        eixo = self.entries_imagem['reflexao_eixo'].get()
-        self.canvas_imagem.aplicar_reflexao(eixo); self._add_hist(f"Reflexão: eixo {eixo}")
+        eixo = self.entries_imagem['reflexao_eixo'].get(); self.canvas_imagem.aplicar_reflexao(eixo); self._add_hist(f"Reflexão: eixo {eixo}")
 
     def criar_controles_retas(self):
         self.entries_retas = {}; frame = self.controles_retas
         ttk.Button(frame, text="Limpar Tela", command=self.canvas_retas.limpar_linhas).pack(pady=10, fill=tk.X)
         def _criar_entry_reta(parent, label, key, val):
             ttk.Label(parent, text=label).pack(side=tk.LEFT, padx=(0,5)); e = ttk.Entry(parent, width=7); e.insert(0, val); e.pack(side=tk.LEFT, padx=(0,10)); self.entries_retas[key] = e
-        f_p1 = ttk.LabelFrame(frame, text="Ponto Inicial (P1)", padding=10); f_p1.pack(fill=tk.X, pady=5)
-        _criar_entry_reta(f_p1, "X0:", "x0", "-250"); _criar_entry_reta(f_p1, "Y0:", "y0", "-50")
-        f_p2 = ttk.LabelFrame(frame, text="Ponto Final (P2)", padding=10); f_p2.pack(fill=tk.X, pady=5)
-        _criar_entry_reta(f_p2, "X1:", "x1", "250"); _criar_entry_reta(f_p2, "Y1:", "y1", "180")
+        f_p1 = ttk.LabelFrame(frame, text="Ponto Inicial (P1)", padding=10); f_p1.pack(fill=tk.X, pady=5); _criar_entry_reta(f_p1, "X0:", "x0", "-250"); _criar_entry_reta(f_p1, "Y0:", "y0", "-50")
+        f_p2 = ttk.LabelFrame(frame, text="Ponto Final (P2)", padding=10); f_p2.pack(fill=tk.X, pady=5); _criar_entry_reta(f_p2, "X1:", "x1", "250"); _criar_entry_reta(f_p2, "Y1:", "y1", "180")
         f_algo = ttk.LabelFrame(frame, text="Algoritmo", padding=10); f_algo.pack(fill=tk.X, pady=5)
-        self.entries_retas['algoritmo'] = ttk.Combobox(f_algo, values=['Bresenham', 'DDA'], state="readonly")
-        self.entries_retas['algoritmo'].set('Bresenham'); self.entries_retas['algoritmo'].pack(fill=tk.X)
+        self.entries_retas['algoritmo'] = ttk.Combobox(f_algo, values=['Bresenham', 'DDA'], state="readonly"); self.entries_retas['algoritmo'].set('Bresenham'); self.entries_retas['algoritmo'].pack(fill=tk.X)
         ttk.Button(frame, text="Desenhar Reta", command=self.aplicar_desenho_reta).pack(pady=10, fill=tk.X)
         f_clip = ttk.LabelFrame(frame, text="Recorte (Cohen-Sutherland)", padding=10); f_clip.pack(fill=tk.X, pady=10)
         ttk.Checkbutton(f_clip, text="Habilitar Recorte", variable=self.canvas_retas.clipping_enabled, command=lambda: self.canvas_retas.tkExpose(None)).pack(anchor=tk.W)
@@ -390,15 +385,12 @@ class App(tk.Tk):
         def _criar_entry_clip(parent, label, key, val):
             ttk.Label(parent, text=label).pack(side=tk.LEFT); e = ttk.Entry(parent, width=6); e.insert(0, str(val)); e.pack(side=tk.LEFT, padx=(2, 8)); self.entries_retas[key] = e
         defaults = self.canvas_retas.clipping_rect
-        _criar_entry_clip(f_clip_coords, "Xmin:", "xmin", defaults['xmin']); _criar_entry_clip(f_clip_coords, "Ymin:", "ymin", defaults['ymin'])
-        _criar_entry_clip(f_clip_coords, "Xmax:", "xmax", defaults['xmax']); _criar_entry_clip(f_clip_coords, "Ymax:", "ymax", defaults['ymax'])
+        _criar_entry_clip(f_clip_coords, "Xmin:", "xmin", defaults['xmin']); _criar_entry_clip(f_clip_coords, "Ymin:", "ymin", defaults['ymin']); _criar_entry_clip(f_clip_coords, "Xmax:", "xmax", defaults['xmax']); _criar_entry_clip(f_clip_coords, "Ymax:", "ymax", defaults['ymax'])
         ttk.Button(f_clip, text="Atualizar Janela de Recorte", command=self.aplicar_config_recorte).pack(pady=5, fill=tk.X)
     def aplicar_desenho_reta(self):
         try:
-            x0 = int(self.entries_retas['x0'].get()); y0 = int(self.entries_retas['y0'].get())
-            x1 = int(self.entries_retas['x1'].get()); y1 = int(self.entries_retas['y1'].get())
-            algo = self.entries_retas['algoritmo'].get(); cor = tuple(np.random.rand(3))
-            self.canvas_retas.adicionar_linha((x0,y0), (x1,y1), algo, cor)
+            x0 = int(self.entries_retas['x0'].get()); y0 = int(self.entries_retas['y0'].get()); x1 = int(self.entries_retas['x1'].get()); y1 = int(self.entries_retas['y1'].get())
+            algo = self.entries_retas['algoritmo'].get(); cor = tuple(np.random.rand(3)); self.canvas_retas.adicionar_linha((x0,y0), (x1,y1), algo, cor)
         except ValueError: messagebox.showerror("Erro", "Coordenadas das retas devem ser números inteiros.")
     def aplicar_config_recorte(self):
         try:
@@ -427,13 +419,7 @@ class App(tk.Tk):
             elif key == 'reflexao_plano': entry.set('nenhuma')
     def aplicar_3d(self):
         try:
-            transformacoes = {
-                'translacao': (float(self.entries_3d['tx'].get()), float(self.entries_3d['ty'].get()), float(self.entries_3d['tz'].get())),
-                'escala': (float(self.entries_3d['sx'].get()), float(self.entries_3d['sy'].get()), float(self.entries_3d['sz'].get())),
-                'rotacao': (float(self.entries_3d['rx'].get()), float(self.entries_3d['ry'].get()), float(self.entries_3d['rz'].get())),
-                'cisalhamento': (float(self.entries_3d['sh_xy'].get()), float(self.entries_3d['sh_xz'].get()), float(self.entries_3d['sh_yz'].get())),
-                'reflexao': self.entries_3d['reflexao_plano'].get()
-            }
+            transformacoes = {'translacao': (float(self.entries_3d['tx'].get()), float(self.entries_3d['ty'].get()), float(self.entries_3d['tz'].get())), 'escala': (float(self.entries_3d['sx'].get()), float(self.entries_3d['sy'].get()), float(self.entries_3d['sz'].get())), 'rotacao': (float(self.entries_3d['rx'].get()), float(self.entries_3d['ry'].get()), float(self.entries_3d['rz'].get())), 'cisalhamento': (float(self.entries_3d['sh_xy'].get()), float(self.entries_3d['sh_xz'].get()), float(self.entries_3d['sh_yz'].get())), 'reflexao': self.entries_3d['reflexao_plano'].get()}
             self.canvas_3d.set_transformacoes(transformacoes)
         except ValueError: messagebox.showerror("Erro", "Por favor, insira números válidos para todos os campos 3D.")
 
@@ -473,7 +459,6 @@ class App(tk.Tk):
         if shx is not None and shy is not None: self.canvas_2d.aplicar_transformacao(cisalhamento2d, shx, shy)
     def aplicar_reflexao_2d(self):
         eixo = self.entries_2d['reflexao_eixo'].get(); self.canvas_2d.aplicar_transformacao(reflexao2d, eixo)
-
 
 if __name__ == '__main__':
     app = App()
