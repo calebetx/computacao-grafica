@@ -1,18 +1,17 @@
+# dentro de algorithms3d/escala3d.py
 import numpy as np
 
-def escala3d(matriz_vertices, escala):
-    """
-    Escala os vértices de um cubo.
-
-    Parâmetros:
-    - matriz_vertices: np.ndarray de forma (n, 3), onde cada linha é um vértice (x, y, z).
-    - escala: tupla ou lista com 3 valores (escala_x, escala_y, escala_z)
-
-    Retorna:
-    - np.ndarray com os vértices escalados
-    """
-    # Cria uma matriz de escala 3x3
-    matriz_escala = np.diag(escala)
-
-    # Multiplica os vértices pela matriz de escala
-    return np.dot(matriz_vertices, matriz_escala)
+def escala3d(vertices, fatores):
+    sx, sy, sz = fatores
+    matriz_escala = np.array([
+        [sx, 0,  0,  0],
+        [0,  sy, 0,  0],
+        [0,  0,  sz, 0],
+        [0,  0,  0,  1]
+    ])
+    # Adiciona a coordenada homogênea (w=1)
+    vertices_homogeneos = np.c_[vertices, np.ones(vertices.shape[0])]
+    # Aplica a transformação
+    vertices_transformados = vertices_homogeneos @ matriz_escala.T
+    # Remove a coordenada homogênea
+    return vertices_transformados[:, :3]
